@@ -1,5 +1,5 @@
 //
-// Created by elanda on 12/11/25.
+// Created by swappel on 12/11/25.
 //
 
 #ifndef AFOP_TRANSLATOR_BACKEND_LOCALELINE_H

@@ -1,11 +1,14 @@
 //
-// Created by elanda on 12/11/25.
+// Created by swappel on 12/11/25.
 //
 
 #ifndef AFOP_TRANSLATOR_BACKEND_FILEREADER_H
 #define AFOP_TRANSLATOR_BACKEND_FILEREADER_H
 #include <filesystem>
 #include <string>
+#include <vector>
+
+#include "LocaleLine.h"
 
 
 class LocPackFile
@@ -13,11 +16,14 @@ class LocPackFile
 
 public:
     LocPackFile();
-    explicit LocPackFile(std::string);
+    explicit LocPackFile(const std::string &path);
     [[nodiscard]] std::filesystem::path getPath() const;
-    void setPath(std::string);
-    void findHash(std::string);
-    void findByHash(std::string);
+    void setPath(const std::string &path);
+
+    LocaleLine parseLocPack();
+
+    void findHash(const std::string&);
+    void findByHash(const std::string&);
 
 private:
     std::filesystem::path filePath;
