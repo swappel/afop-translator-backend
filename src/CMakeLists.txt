@@ -1,6 +1,10 @@
 add_library(afop_translator_backend_Core STATIC
         network/Server.cpp
-        ../include/Server.h)
+        ../include/Server.h
+        fileutils/LocPackFile.cpp
+        ../include/LocPackFile.h
+        utils/LocaleLine.cpp
+        ../include/LocaleLine.h)
 
 target_include_directories(afop_translator_backend_Core PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
