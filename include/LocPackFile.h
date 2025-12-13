@@ -20,10 +20,10 @@ public:
     [[nodiscard]] std::filesystem::path getPath() const;
     void setPath(const std::string &path);
 
-    LocaleLine parseLocPack();
+    [[nodiscard]] std::vector<LocaleLine> parseLocPack() const;
+    [[nodiscard]] int findHashIndex(const std::string& hash) const;
 
-    void findHash(const std::string&);
-    void findByHash(const std::string&);
+    [[nodiscard]] LocaleLine findHashComplete(const std::string& hash) const;
 
 private:
     std::filesystem::path filePath;

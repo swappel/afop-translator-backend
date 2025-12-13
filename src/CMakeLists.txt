@@ -8,6 +8,7 @@ add_library(afop_translator_backend_Core STATIC
 
 target_include_directories(afop_translator_backend_Core PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-add_executable(afop_translator_backend main.cpp)
+add_executable(afop_translator_backend main.cpp
+        ../include/libraries/rapidcsv.h)
 
 target_link_libraries(afop_translator_backend PRIVATE afop_translator_backend_Core)

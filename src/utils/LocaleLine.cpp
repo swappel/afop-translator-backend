@@ -4,6 +4,31 @@
 
 #include "../../include/LocaleLine.h"
 
+LocaleLine::LocaleLine() {}
+
+LocaleLine::LocaleLine(const std::string &hash,
+                       const std::string &content,
+                       const int character,
+                       const int unknown)
+{
+    m_hash = hash;
+    m_content = content;
+    m_character = character;
+    m_unknown = unknown;
+}
+
+LocaleLine::LocaleLine(const std::string &hash,
+                       const std::string &convertedHash,
+                       const std::string &content,
+                       const int character,
+                       const int unknown) {
+    m_hash = hash;
+    m_convertedHash = convertedHash;
+    m_content = content;
+    m_character = character;
+    m_unknown = unknown;
+}
+
 void LocaleLine::convertHash() {
 
 }
@@ -58,16 +83,4 @@ void LocaleLine::setHash(const std::string &hash) {
 
 void LocaleLine::setConvertedHash(const std::string &convertedHash) {
     m_convertedHash = convertedHash;
-}
-
-LocaleLine::LocaleLine(const std::string &hash,
-                       const std::string &convertedHash,
-                       const std::string &content,
-                       const int character,
-                       const int unknown) {
-    this->m_hash = hash;
-    this->m_convertedHash = convertedHash;
-    this->m_content = content;
-    this->m_character = character;
-    this->m_unknown = unknown;
 }
