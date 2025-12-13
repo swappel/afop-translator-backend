@@ -17,14 +17,14 @@ LocPackFile::LocPackFile(const std::string &pathString) {
 void LocPackFile::validateAndLoad(const std::string &pathString) {
     const auto testPath = std::filesystem::path(pathString);
 
-    // All validation checks go here
+    // Checking if the path is valid
     if (!std::filesystem::exists(testPath)) throw std::runtime_error("Path '" + pathString + "' does not exist.");
     if (std::filesystem::is_directory(testPath)) throw std::runtime_error("Path '" + pathString + "' is a directory. Should be a file.");
     if (testPath.extension() != ".locpack") throw std::runtime_error("File '" + pathString + "' has an incorrect extension. Should be '.locpack'");
 
     filePath = testPath;
 
-    // All loading logic goes here
+    // Loading the CSV lines into the Document object
     auto newDoc = std::make_unique<rapidcsv::Document>(
         filePath,
         rapidcsv::LabelParams(-1, -1),
@@ -99,6 +99,40 @@ std::vector<LocaleLine> LocPackFile::parseLocPackRange(const int offset, const i
 
         // Get the row
         std::vector<std::string> readStrings = doc->GetRow<std::string>(finalIndex);
+
+        // Reformating string to remove \r from it
+        readStrings[3].erase(std::ranges::remove(readStrings[3], '\r').begin(), readStrings[3].end());
+
+        // Put the result at the end of the retrieve lines
+        lines.emplace_back(readStrings[0], readStrings[3], std::stoi(readStrings[1]), std::stoi(readStrings[2]));
+    }
+
+    return lines;
+}
+
+/*
+ Used to fetch all lines of the .locpack file
+
+ Returns a vector with the requested information.
+ If unsuccessful, throws a runtime error
+ */
+std::vector<LocaleLine> LocPackFile::parseLocPackWhole() const
+{
+    // Making sure the document we read is up to date
+    if (!refreshDocument())
+    {
+        throw std::runtime_error("Reloading file at path '" + filePath.string() + "' failed.");
+    }
+
+    std::vector<LocaleLine> lines;
+    const int lineCount = doc->GetRowCount();
+    lines.reserve(lineCount);
+
+    // Read the lines
+    for (int i = 0; i < lineCount; ++i)
+    {
+        // Get the row
+        std::vector<std::string> readStrings = doc->GetRow<std::string>(i);
 
         // Reformating string to remove \r from it
         readStrings[3].erase(std::ranges::remove(readStrings[3], '\r').begin(), readStrings[3].end());

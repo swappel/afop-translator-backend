@@ -5,11 +5,12 @@
 
 int main()
 {
-    const auto locPack = LocPackFile{"/mnt/massive/Coding/CPP/afop-translator-backend/cmake-build-release/src/menus.locpackbin"};
+    const auto locPack = LocPackFile{"/mnt/massive/Coding/CPP/afop-translator-backend/cmake-build-release/src/menus.locpack"};
 
-    const LocaleLine inventoryFull = locPack.findHashComplete("BFB129F6593159310000650DEC6EFD72");
-
-    std::cout << inventoryFull.getContent();
+    for (const std::vector<LocaleLine> testRange= locPack.parseLocPackRange(3, 200); auto line : testRange)
+    {
+        std::cout << line.getContent() << "\n_________________\n";
+    }
 
     return 0;
 }

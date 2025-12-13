@@ -28,6 +28,7 @@ public:
     void setPath(const std::string &pathString);
 
     [[nodiscard]] std::vector<LocaleLine> parseLocPackRange(const int offset, const int amount) const;
+    [[nodiscard]] std::vector<LocaleLine> parseLocPackWhole() const;
     [[nodiscard]] int findHashIndex(const std::string& hash) const;
 
     [[nodiscard]] LocaleLine findHashComplete(const std::string& hash) const;
