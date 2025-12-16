@@ -61,7 +61,7 @@ int LocaleLine::getUnknown() const {
     return m_unknown;
 }
 
-void LocaleLine::setCharacter(int &character) {
+void LocaleLine::setCharacter(const int &character) {
     m_character = character;
 }
 

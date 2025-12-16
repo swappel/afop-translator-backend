@@ -30,7 +30,7 @@ public:
     [[nodiscard]] int getCharacter() const;
     [[nodiscard]] int getUnknown() const;
 
-    void setCharacter(int &character);
+    void setCharacter(const int &character);
     void setUnknown(const int &unknown);
     void setContent(const std::string &content);
     void setConvertedContent(const std::string &content);
