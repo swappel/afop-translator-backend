@@ -1,14 +1,14 @@
 #include "../../include/LocPackFile.h"
 
-/*
- * Empty constructor for the LocPackFile class
+/**
+ * This is an empty constructor
  */
 LocPackFile::LocPackFile() = default;
 
-/*
- * Constructor for the LocPackFile class
+/**
+ * A constructor that initializes the LocPackFile object
  *
- * `path` takes a string with the path to the .locpack file
+ * @param pathString
  */
 LocPackFile::LocPackFile(const std::string &pathString) {
     validateAndLoad(pathString);

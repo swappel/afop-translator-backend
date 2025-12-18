@@ -1,7 +1,6 @@
 #include "../../include/LocPackBinFile.h"
 
 #include <algorithm>
-#include <bits/regex.h>
 
 LocPackBinFile::LocPackBinFile() = default;
 
@@ -12,6 +11,9 @@ LocPackBinFile::LocPackBinFile(const std::string &pathString)
         throw std::runtime_error("Initialization failed: Could not load binary file at path '" + filePath.string() + "'.");
     }
 }
+
+BlockInfo::BlockInfo(int offset, uint16_t length, std::string text)
+    : offset(offset), length(length), text(std::move(text)) { }
 
 void LocPackBinFile::validateAndLoad(const std::string &pathString) {
     const auto testPath = std::filesystem::path(pathString);
@@ -148,10 +150,21 @@ std::string LocPackBinFile::convertHash(const std::string &hash){
     std::string firstHalf = hash.substr(0, hash.length()/2);
     std::string secondHalf = hash.substr(hash.length()/2);
 
-    std::ranges::reverse(firstHalf);
-    std::ranges::reverse(secondHalf);
+    std::string convertedString;
 
-    return firstHalf + secondHalf;
+    for (int i = 15; i > 0; i -= 2)
+    {
+        convertedString += firstHalf.substr(i - 1, 2);
+    }
+
+    for (int i = 15; i > 0; i -= 2)
+    {
+        convertedString += secondHalf.substr(i - 1, 2);
+    }
+
+
+
+    return convertedString;
 }
 
 /**
@@ -161,30 +174,37 @@ std::string LocPackBinFile::convertHash(const std::string &hash){
  */
 BlockInfo LocPackBinFile::getTextByHash(const std::string &hash) const {
 
-    byte hashBytes[32];
+    byte hashBytes[16];
     // Convert char to bytes
-    for (int charIdx = 0; charIdx < 32; ++charIdx) {
-        hashBytes[charIdx] = hash[charIdx];
+    for (int charIdx = 0; charIdx < 32; charIdx += 2) {
+        hashBytes[charIdx] = (hash[charIdx] << 4) + hash[charIdx + 1];
     }
 
     // Search for the actual hash
-    auto search = std::search(
-        fileContents.begin(),
-        fileContents.end(),
-        std::begin(hashBytes),
-        std::end(hashBytes)
-    );
+    const auto search = std::ranges::search(fileContents, hashBytes
+    ).begin();
 
     // Verify if the search was found
     if (search == fileContents.end()) throw std::runtime_error("No entry was found with hash '" + hash + "'");
-    size_t findIdx = std::distance(fileContents.begin(), search);
+    const int findIdx = std::distance(fileContents.begin(), search);
 
-    uint16_t = fileContents[findIdx + 32 + ]
+    const uint16_t contentLength = fileContents[findIdx + 32 + 9];
+    char content[contentLength + 1];
 
-    BlockInfo block = BlockInfo{
-        findIdx,
-
+    for (int i = 0; i < contentLength; ++i)
+    {
+        content[i] = fileContents[findIdx + 44 + i];
     }
+
+    content[contentLength] = '\0';
+
+    const std::string stringContent(content);
+
+    return BlockInfo{
+        findIdx,
+        contentLength,
+        stringContent
+    };
 
 }
 
