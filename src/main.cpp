@@ -3,21 +3,31 @@
 
 #include "LocPackBinFile.h"
 #include "LocPackFile.h"
+#include "Server.h"
+
+void performFullUpdate(LocPackFile& csvFile, LocPackBinFile& binFile,
+                       const std::string& hash, int val1, int val2, const std::string& text) {
+
+    std::cout << "Updating entry: " << hash << "..." << std::endl;
+
+    // Update the Binary file (rebuilds the buffer and handles variable length)
+    binFile.updateEntry(hash, val1, val2, text);
+
+    // Update the CSV file
+    csvFile.updateEntry(hash, val1, val2, text);
+
+    std::cout << "Update successful!" << std::endl;
+}
 
 int main()
 {
-    const auto locPack = LocPackFile{"./menu.locpack"};
-    const auto locPackBin = LocPackBinFile("./menu.locpackbin");
-
-    for (const std::vector<LocaleLine> testRange= locPack.parseLocPackRange(3, 200); auto line : testRange)
-    {
-        std::string convertedHash = LocPackBinFile::convertHash(line.getHash());
-
-        std::cout << "Hash in .locpack: " << line.getHash() << "\nConverted hash:   " << convertedHash << std::endl;
-
-        std::cout << "Content in .locpack:    " << line.getContent() << "\n"
-                  << "Content in .locpackbin: " << locPackBin.getTextByHash(convertedHash).text;
+    try {
+        LocPackServer server("menus.locpack", "menus.locpackbin");
+        std::cout << "Starting server on port 18080..." << std::endl;
+        server.run(18080);
+    } catch (const std::exception& e) {
+        std::cerr << "Fatal error: " << e.what() << std::endl;
+        return 1;
     }
-
     return 0;
 }

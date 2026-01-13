@@ -26,7 +26,7 @@ void LocPackFile::validateAndLoad(const std::string &pathString) {
 
     // Loading the CSV lines into the Document object
     auto newDoc = std::make_unique<rapidcsv::Document>(
-        filePath,
+        filePath.string(),
         rapidcsv::LabelParams(-1, -1),
         rapidcsv::SeparatorParams(',', false, true, true, false)
     );
@@ -51,7 +51,7 @@ bool LocPackFile::refreshDocument() const
         std::cerr << "File at path '" << filePath.string() << "' modified. Reloading..." << std::endl;
 
         auto newDoc = std::make_unique<rapidcsv::Document>(
-            filePath,
+            filePath.string(),
             rapidcsv::LabelParams(-1, -1),
             rapidcsv::SeparatorParams(',', false, true, true, false)
         );
@@ -90,21 +90,27 @@ std::vector<LocaleLine> LocPackFile::parseLocPackRange(const int offset, const i
     lines.reserve(amount);
 
     // Read the lines
-    for (int i = 0; i < amount; ++i)
-    {
-        const int finalIndex = i + offset;
+    for (size_t i = 0; i < doc->GetRowCount(); ++i) {
+        std::vector<std::string> readStrings = doc->GetRow<std::string>(i);
 
-        // Check if the index is past the document's end
-        if (finalIndex >= doc->GetRowCount()) break;
+        // Skip empty or malformed rows
+        if (readStrings.size() < 4) continue;
 
-        // Get the row
-        std::vector<std::string> readStrings = doc->GetRow<std::string>(finalIndex);
+        try {
+            // Remove \r
+            readStrings[3].erase(std::ranges::remove(readStrings[3], '\r').begin(), readStrings[3].end());
 
-        // Reformating string to remove \r from it
-        readStrings[3].erase(std::ranges::remove(readStrings[3], '\r').begin(), readStrings[3].end());
+            // This is where it crashes on the header ("Val1")
+            // The try-catch will now catch it and just 'continue' to the next line
+            int v1 = std::stoi(readStrings[1]);
+            int v2 = std::stoi(readStrings[2]);
 
-        // Put the result at the end of the retrieve lines
-        lines.emplace_back(readStrings[0], readStrings[3], std::stoi(readStrings[1]), std::stoi(readStrings[2]));
+            lines.push_back(LocaleLine{ readStrings[0], readStrings[3], v1, v2 });
+        }
+        catch (...) {
+            // If stoi fails (like on the header row), just skip this row and keep going
+            continue;
+        }
     }
 
     return lines;
@@ -194,4 +200,32 @@ LocaleLine LocPackFile::findHashComplete(const std::string& hash) const
     readStrings[3].erase(std::ranges::remove(readStrings[3], '\r').begin(), readStrings[3].end());
 
     return LocaleLine{readStrings[0], readStrings[3], std::stoi(readStrings[1]), std::stoi(readStrings[2])};
+}
+
+void LocPackFile::updateEntry(const std::string& hash, int character, int unknown, const std::string& newContent) {
+    // 1. Ensure the document is loaded and up to date
+    if (!doc) {
+        throw std::runtime_error("CSV document not initialized.");
+    }
+    refreshDocument();
+
+    // 2. Find the row index for the given hash
+    int rowIndex = findHashIndex(hash);
+    if (rowIndex == -1) {
+        throw std::runtime_error("Hash not found in .locpack: " + hash);
+    }
+
+    // 3. Prepare the new row data
+    // Format: Hash, Value1, Value2, String
+    std::vector<std::string> newRow;
+    newRow.push_back(hash);
+    newRow.push_back(std::to_string(character));
+    newRow.push_back(std::to_string(unknown));
+    newRow.push_back(newContent);
+
+    // 4. Update the row in memory
+    doc->SetRow(rowIndex, newRow);
+
+    // 5. Save the changes to the file
+    doc->Save();
 }

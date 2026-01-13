@@ -1,5 +1,4 @@
 add_library(afop_translator_backend_Core STATIC
-        network/Server.cpp
         ../include/Server.h
         fileutils/LocPackFile.cpp
         ../include/LocPackFile.h

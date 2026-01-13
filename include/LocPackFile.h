@@ -32,6 +32,8 @@ public:
     [[nodiscard]] int findHashIndex(const std::string& hash) const;
 
     [[nodiscard]] LocaleLine findHashComplete(const std::string& hash) const;
+
+    void updateEntry(const std::string &hash, int character, int unknown, const std::string &newContent);
 };
 
 

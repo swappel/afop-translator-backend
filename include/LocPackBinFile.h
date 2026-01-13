@@ -51,6 +51,11 @@ public:
 
     [[nodiscard]] static std::string convertHash(const std::string &hash);
     [[nodiscard]] BlockInfo getTextByHash(const std::string &hash) const;
+
+    void updateEntry(const std::string &hexHash, int val1, int val2, const std::string &newText) const;
+
+    std::filesystem::path getPath() const;
+    void setPath(const std::string &pathString);
 };
 
 
